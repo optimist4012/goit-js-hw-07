@@ -1,42 +1,47 @@
 import { galleryItems } from './gallery-items.js';
 // Change code below this line
 
-const galleryList = document.querySelector('.gallery');
-const markup = createMarkup(galleryItems)
-galleryList.insertAdjacentHTML('beforeend', markup);
-galleryList.addEventListener('click', (handleGalleryClick));
-function createMarkup (arr) {
-    return arr.map(({preview, original, description }) => {
-        return `<li data-preview="${preview}" class="gallery__item">
-        <a class="gallery__link" href="${original}">
-        <img src="${preview}" data-source="${original}" alt="${description}" class="gallery__image"/>
-        </a>
-        </li>`
-    }).join('');
-}
-function handleGalleryClick (evt) {
-    evt.preventDefault();
-    if(evt.target.nodeName !== 'IMG') {
-        return;
-    }
-    const gallerySource = evt.target.dataset.source;
-    const galleryName = evt.target.alt;
-const instance = basicLightbox.create(`
-<div class="modal">
-<img src="${gallerySource}" alt="${galleryName}" id="modalImg"/>
-</div>
-`, {
-    onShow: (instance) => {document.addEventListener('keydown', onEscapePress)},
-	onClose: (instance) => {document.removeEventListener('keydown', onEscapePress)}
-});
-    instance.show();
-const modalImg = document.getElementById('modalImg');
-modalImg.addEventListener('click', () => {
-  instance.close();
-});
-    function onEscapePress(evt) {
-        if (evt.code === 'Escape') {
-            instance.close();
-        }
-    }
+const createGallery = createListGallery(galleryItems);
+const container = document.querySelector("ul.gallery");
+container.insertAdjacentHTML("afterbegin", createGallery);
+container.addEventListener("click", openModalClick);
+function  openModalClick(event) {
+  if(event.target.nodeName !== "IMG"){
+    return;
+   }
+   event.preventDefault();
+   const instance = basicLightbox.create(`
+      <div class="modal">
+       <img src="${event.target.dataset.source}" alt="${event.target.alt}"/>
+       </div>
+     `, {
+      onShow: (instance) => {
+      document.addEventListener('keydown', closeModal)
+     },
+      onClose: (instance) => {
+        document.removeEventListener('keydown', closeModal)
+      }
+     })
+     instance.show()
+     function closeModal(e) {
+      if (e.code === 'Escape') {
+        instance.close()
+       }
+      }
 };
+function createListGallery(images)  { 
+    return images.map(({preview, description, original}) => {
+        return `
+        <li class="gallery__item ">
+        <a class="gallery__link" href="${original}">
+          <img
+            class="gallery__image"
+            src="${preview}"
+            data-source="${original}"
+            alt="${description}"
+          />
+        </a>
+      </li>`;
+    }).join('');
+    }; 
+    console.log(createGallery)
